@@ -1,0 +1,16 @@
+boto3==1.21.43
+botocore==1.24.43
+click==8.1.2
+colorama==0.4.4
+Flask==2.1.1
+importlib-metadata==4.11.3
+itsdangerous==2.1.2
+Jinja2==3.1.1
+jmespath==1.0.0
+MarkupSafe==2.1.1
+python-dateutil==2.8.2
+s3transfer==0.5.2
+six==1.16.0
+urllib3==1.26.9
+Werkzeug==2.1.1
+zipp==3.8.0
