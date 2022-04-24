@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import './gateway'
 import gatewayUrl from './gateway';
 import Modal from './modal';
 
