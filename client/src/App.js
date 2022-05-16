@@ -3,6 +3,12 @@ import './App.css';
 import gatewayUrl from './gateway';
 import Modal from './modal';
 
+const healthCheck = () => {
+  fetch(gatewayUrl + '/im-health-check')
+    .then(response => response.json())
+    .then(data => alert("The server is alive and says " + data))
+}
+
 const App = () => {
   return (
     <div className="container">
@@ -17,7 +23,7 @@ const App = () => {
           
         </div>
         <div className="col-2">
-          <button type="button" className="btn btn-info">Health check</button>
+          <button type="button" className="btn btn-info" onClick={healthCheck}>Health check</button>
         </div>
       </div>
       <Modal show={!gatewayUrl}>
