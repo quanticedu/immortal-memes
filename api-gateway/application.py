@@ -158,6 +158,7 @@ cors_origins = []
 
 try:
     for api in apis:
+        print(api)
         api_name = get_required_entry(
             api,
             "api_name",
@@ -248,9 +249,9 @@ except Exception as err:
         view_func=lambda: err_str
     )
 
+if cors_origins:
+    CORS(application, origins=cors_origins)
+
 # run the app.
 if __name__ == "__main__":
-    if cors_origins:
-        CORS(application, origins=cors_origins)
-        
     application.run()
