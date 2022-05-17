@@ -12,6 +12,7 @@
 #    Integrations: Lambda
 #    Methods: any (including the ANY method specifier)
 #    Path variables: yes, except for greedy variables.
+#    CORS: Access-Control-Allow-Origin only
 #
 # For more information on Flask, see 
 # https://flask.palletsprojects.com/en/2.1.x/. A few notes:
@@ -28,11 +29,9 @@
 # https://boto3.amazonaws.com/v1/documentation/api/latest/index.html
 
 from flask import Flask, request
+from flask_cors import CORS
 import json, boto3
 from botocore.config import Config
-
-# Elastic Beanstalk looks for a callable named application
-application = Flask(__name__)
 
 class LambdaInvoker():
     """Represents a callable invoker for an AWS Lambda function.
@@ -135,7 +134,11 @@ def get_required_entry(dictionary, key, exception_text):
 
     return result
 
-# load the API(s) from a config file
+# Start building the app. Elastic Beanstalk looks for a callable named 
+# application.
+application = Flask(__name__)
+
+# load the config file
 config = None
 
 try:
@@ -151,6 +154,8 @@ except Exception as err:
     apis = []
 
 # build the route handlers
+cors_origins = []
+
 try:
     for api in apis:
         api_name = get_required_entry(
@@ -231,6 +236,8 @@ try:
         else:
             raise Exception(f"api type {api_type} not implemented")
 
+        cors_origins += api.get("Access-Control-Allow-Origin", [])
+
 except Exception as err:
     # reset the application and add an error route
     application = Flask(__name__)
@@ -243,4 +250,7 @@ except Exception as err:
 
 # run the app.
 if __name__ == "__main__":
+    if cors_origins:
+        CORS(application, origins=cors_origins)
+        
     application.run()

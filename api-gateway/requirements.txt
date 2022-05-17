@@ -3,6 +3,7 @@ botocore==1.24.43
 click==8.1.2
 colorama==0.4.4
 Flask==2.1.1
+Flask-Cors==3.0.10
 importlib-metadata==4.11.3
 itsdangerous==2.1.2
 Jinja2==3.1.1
