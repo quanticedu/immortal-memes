@@ -4,7 +4,7 @@ import gatewayUrl from './gateway';
 import Modal from './modal';
 
 const healthCheck = () => {
-  fetch(gatewayUrl + '/im-health-check')
+  fetch(gatewayUrl + '/health-check')
     .then(response => response.json())
     .then(data => alert("The server is alive and says " + data))
 }
