@@ -2,6 +2,7 @@
     {
         "api_name": "immortal_memes",
         "api_type": "HTTP",
+        "Access-Control-Allow-Origin": ["*"],
         "integrations": {
             "0": {"type": "lambda", "region": "us-east-1", "function": "im-health-check"}
         },
