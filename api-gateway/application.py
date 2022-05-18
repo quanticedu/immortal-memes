@@ -158,7 +158,6 @@ cors_origins = []
 
 try:
     for api in apis:
-        print(api)
         api_name = get_required_entry(
             api,
             "api_name",
@@ -197,44 +196,58 @@ try:
                     "path",
                     f"Route in API {api_name} missing required path"
                 )
-                integration_id = get_required_entry(
+
+                integration_target = get_required_entry(
                     route,
-                    "integration_id",
-                    f"Route in API {api_name} missing required integration_id"
-                )
-                integration = get_required_entry(
-                    integrations,
-                    integration_id,
-                    f"API {api_name} missing integration_id {integration_id}"
-                )
-                integration_type = get_required_entry(
-                    integration,
-                    "type",
-                    f"integration_id {integration_id} missing required type"
+                    "integration_target",
+                    f"Route in API {api_name} missing required integration_target"
                 )
 
-                if integration_type == "lambda":
-                    region = get_required_entry(
+                for integration in integrations:
+                    integration_type = get_required_entry(
                         integration,
-                        "region",
-                        f"integration_id {integration_id} missing required region"
+                        "type",
+                        f"integration in API {api_name} missing required type"
                     )
-                    function = get_required_entry(
-                        integration,
-                        "function",
-                        f"integration_id {integration_id} missing required function"
-                    )
-                    application.add_url_rule(
-                        # Flask uses <> for path variable delimiters
-                        path.replace("{", "<").replace("}", ">"), 
-                        endpoint=f"{path}_{region}_{function}",
-                        methods=[method] if method else None,
-                        view_func=LambdaInvoker(region, function, path)
-                    )
-                else:
-                    raise Exception(f"integration type {integration_type} not implemented")
 
-        else:
+                    if integration_type == "lambda":
+                        integration_function = get_required_entry(
+                            integration,
+                            "function",
+                            f"lambda integration in API {api_name} missing required function"
+                        )
+
+                        if integration_function == integration_target:
+                            region = get_required_entry(
+                                integration,
+                                "region",
+                                f"lambda integraion in API {api_name} missing required region"
+                            )
+
+                            # See https://flask.palletsprojects.com/en/2.1.x/api/#flask.Flask.add_url_rule
+                            # for documentation on the add_url_rule() method.
+                            # In the first argument, Flask uses <> for path 
+                            # variable delimiters, so we replace API Gateway's
+                            # curly braces. The endpoint argument provides a
+                            # unique name for the URL rule.
+                            application.add_url_rule(
+                                # Flask uses <> for path variable delimiters
+                                path.replace("{", "<").replace("}", ">"),
+                                endpoint=f"{path}_{region}_{integration_function}",
+                                methods=[method] if method else None,
+                                view_func=LambdaInvoker(region, integration_function, path)
+                            )
+
+                            print(f"Added route {path} with endpoint {path}_{region}_{integration_function} and method {method}")
+
+                            break # from: for integration in integrations
+                    else: # from: if integration_type == "lambda"
+                        raise Exception(f"integration type {integration_type} not implemented")
+
+                else: # from: for integration in integrations
+                    raise Exception(f"route in API {api_name} has no corresponding integration target")
+
+        else: # from: if api_type == "HTTP"
             raise Exception(f"api type {api_type} not implemented")
 
         cors_origins += api.get("Access-Control-Allow-Origin", [])

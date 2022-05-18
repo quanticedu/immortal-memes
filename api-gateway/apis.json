@@ -3,11 +3,11 @@
         "api_name": "immortal_memes",
         "api_type": "HTTP",
         "Access-Control-Allow-Origin": ["*"],
-        "integrations": {
-            "0": {"type": "lambda", "region": "us-east-1", "function": "im-health-check"}
-        },
+        "integrations": [
+            {"type": "lambda", "region": "us-east-1", "function": "im-health-check"}
+        ],
         "routes": [
-            {"method": "GET", "path": "/health-check", "integration_id": "0"}
+            {"method": "GET", "path": "/health-check", "integration_target": "im-health-check"}
         ]
     }
 ]
