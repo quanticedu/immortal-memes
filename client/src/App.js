@@ -6,7 +6,7 @@ import Modal from './modal';
 const healthCheck = () => {
   fetch(gatewayUrl + '/health-check')
     .then(response => response.json())
-    .then(data => alert("The server is alive and says " + data))
+    .then(data => alert("The server is alive and says " + data.body))
 }
 
 const App = () => {
