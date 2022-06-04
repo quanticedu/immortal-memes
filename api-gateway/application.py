@@ -99,17 +99,50 @@ class LambdaInvoker():
             region_name=self.region
         )
         client = boto3.client("lambda", config=invoke_config)
-        response = client.invoke(
+        lambda_response = client.invoke(
             FunctionName=self.function,
             InvocationType="RequestResponse",
             Payload=json.dumps(payload)
         )
 
-        # now send the response
-        if response["StatusCode"] != 200:
-            return response["FunctionError"], response["StatusCode"]
-        else:
-            return response["Payload"].read()
+        # now send the response. note that flask_cors does not include
+        # CORS headers on responses without bodies.
+        return lambda_response["Payload"].read(), lambda_response["StatusCode"]
+
+        # code to test the gateway and client locally follows
+        #if self.function == "im-get-thumbnails":
+        #    tns = []
+        #    for i in range(5):
+        #        tns.append({
+        #            "id": i,
+        #            "userName": "John",
+        #            "timePosted": 1654197470000,
+        #            "timeToLive": 20 + i,
+        #            "imageUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACYSURBVChTYwACDg6O+fPn/4eBX/sPvrd0eCujAkQgaYgKiNyPVWvfaRlB5BDSQBAlr/hY1wQuAURfsgoYCgoKgHLOHFz3pJSQ5b5W1gINY/j+/ftUdy9kucue/v9+/IDYxfB90TK4BBD1Cooiu5QB2SFAOYg74CoY4HJAA9vb2yHSQABRAZWGOAQI0FSApOFyEABXkZGRAQBG/IfkyHRaggAAAABJRU5ErkJggg=="
+        #        })
+
+        #    return {"statusCode": 200, "body": tns}, 200
+        #elif self.function == "im-post-meme":
+        #    return {"statusCode": 200}, 200
+        #elif self.function == "im-health-check":
+        #    return {"statusCode": 200, "body": "healthy"}, 200
+        #elif self.function == "im-get-meme":
+        #    print("returning")
+        #    return {
+        #        "statusCode": 200,
+        #        "body": {
+        #            "id": 1,
+        #            "imageUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACYSURBVChTYwACDg6O+fPn/4eBX/sPvrd0eCujAkQgaYgKiNyPVWvfaRlB5BDSQBAlr/hY1wQuAURfsgoYCgoKgHLOHFz3pJSQ5b5W1gINY/j+/ftUdy9kucue/v9+/IDYxfB90TK4BBD1Cooiu5QB2SFAOYg74CoY4HJAA9vb2yHSQABRAZWGOAQI0FSApOFyEABXkZGRAQBG/IfkyHRaggAAAABJRU5ErkJggg==",
+        #            "userName": "John",
+        #            "timePosted": 1654197470000,
+        #            "timeToLive": 30,
+        #            "likes" : ["Pete", "Fred"]
+        #        }
+        #    }, 200
+        #elif self.function == "im-put-like":
+        #    return {"statusCode": 200}, 200
+        #else:
+        #    return {"statusCode": 500, "error": f"bad function {self.function}"}, 500
 
 # convenience function to raise an exception if a required dictionary
 # entry is missing
@@ -224,6 +257,7 @@ try:
                                 f"lambda integraion in API {api_name} missing required region"
                             )
 
+                            endpoint_name = f"{method if method else 'no method'} {path} {region} {integration_function}"
                             # See https://flask.palletsprojects.com/en/2.1.x/api/#flask.Flask.add_url_rule
                             # for documentation on the add_url_rule() method.
                             # In the first argument, Flask uses <> for path 
@@ -233,12 +267,12 @@ try:
                             application.add_url_rule(
                                 # Flask uses <> for path variable delimiters
                                 path.replace("{", "<").replace("}", ">"),
-                                endpoint=f"{path}_{region}_{integration_function}",
+                                endpoint=endpoint_name,
                                 methods=[method] if method else None,
                                 view_func=LambdaInvoker(region, integration_function, path)
                             )
 
-                            print(f"Added route {path} with endpoint {path}_{region}_{integration_function} and method {method}")
+                            print(f"Added endpoint named '{endpoint_name}'")
 
                             break # from: for integration in integrations
                     else: # from: if integration_type == "lambda"
@@ -254,6 +288,7 @@ try:
 
 except Exception as err:
     # reset the application and add an error route
+    print(f"Gateway config error: {err}. Setting default / route.")
     application = Flask(__name__)
     err_str = f"Gateway config error: {err}"
     application.add_url_rule(

@@ -19,3 +19,7 @@
   padding: 30px;
   text-align: center;
 }
+
+.selectCursor {
+  cursor: pointer;
+}
