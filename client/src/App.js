@@ -40,16 +40,33 @@ const App = () => {
   const maxMemeSizeMb = 5;
 
   const healthCheck = () => {
+    // this pattern for error handling from fetch() courtesy of
+    // https://stackoverflow.com/a/62734322/4062628
+    // TODO: figure out if we can refactor this into a generic function to de-DRY
     fetch(`${gatewayUrl}/health-check`)
-      .then((response) => { return response.json(); })
-      .then((data) => { 
-        if (data.statusCode === 200) {
-          alert(`The server is alive and says ${data.body}`); 
-        } else {
-          alert(`The server is alive but reports this error: ${data.error}`);
+      .then((response) => {
+        if (!response.ok) {
+          return Promise.reject(response);
         }
+
+        return response.json()
       })
-      .catch((error) => { alert(`The server is not alive. I received this error: ${error.toString()}`); });
+      .then((body) => {
+        alert(`The server is alive and says ${body}`);
+      })
+      .catch((error) => {
+        if (typeof error.json === "function") {
+          error.json()
+            .then((jsonError) => {
+              alert(`The server is alive, but reports this error: ${jsonError}`);
+            })
+            .catch(() => {
+              alert(`The server is not alive. I received this error: ${error.statusText}`);
+            });
+        } else {
+          alert(`The server is not alive. I received this error: ${error.statusText}`)
+        }
+      });
   };
 
   // if there are thumbnails showing, set a timer that reduces their TTL once
@@ -77,16 +94,31 @@ const App = () => {
 
   const refreshThumbnails = () => {
     fetch(`${gatewayUrl}/thumbnails`)
-      .then((response) => { return response.json(); })
-      .then((data) => {
-        if (data.statusCode !== 200) {
-          alert(`The server can't get thumbnails due to the following error: ${data.error}`);
-          setThumbnails([]);
-        } else {
-          setThumbnails(data.body);
+      .then((response) => {
+        if (!response.ok) {
+          return Promise.reject(response);
         }
+
+        return response.json()
       })
-      .catch((error) => { alert(`The server is not alive. I received this error: ${error.toString()}`); });
+      .then((body) => {
+        setThumbnails(body);
+      })
+      .catch((error) => {
+        if (typeof error.json === "function") {
+          error.json()
+            .then((jsonError) => {
+              alert(`The server is alive, but reports this error: ${jsonError}`);
+            })
+            .catch(() => {
+              alert(`The server is not alive. I received this error: ${error.statusText}`);
+            });
+        } else {
+          alert(`The server is not alive. I received this error: ${error.statusText}`)
+        }
+
+        setThumbnails([]);
+      });
   };
 
   const clearFileSelection = (event) => {
@@ -156,33 +188,61 @@ const App = () => {
           }
         );
       })
-      .then((response) => { return response.json(); })
-      .then((data) => {
-        if (data.statusCode === 200) {
-          alert("Your meme posted!");
-          refreshThumbnails();
+      .then((response) => {
+        if (!response.ok) {
+          return Promise.reject(response);
+        }
+
+        return response.json()
+      })
+      .then((body) => {
+        alert(`Your meme (id ${body.id}) posted!`);
+      })
+      .catch((error) => {
+        if (typeof error.json === "function") {
+          error.json()
+            .then((jsonError) => {
+              alert(`The server couldn't post the meme due to this error: ${jsonError}`);
+            })
+            .catch(() => {
+              alert(`The server is not alive. I received this error: ${error.statusText}`);
+            });
         } else {
-          alert(`The server reports the following error: ${data.error}`);
+          alert(`The server is not alive. I received this error: ${error.statusText}`)
         }
       })
-      .catch((error) => { alert(`The server is not alive. I received this error: ${error.toString()}`); })
       .then(() => {
         setMemeFile(null);
         fileInput.current.value = "";
+        refreshThumbnails();
       });
   };
 
   const showMeme = (id) => {
     fetch(`${gatewayUrl}/${id}`)
-      .then((response) => { return response.json(); })
-      .then((data) => {
-        if (data.statusCode === 200) {
-          setDisplayedMeme(data.body);
-        } else {
-          alert(`The server reports the following error: ${data.error}`);
+      .then((response) => {
+        if (!response.ok) {
+          return Promise.reject(response);
         }
+
+        return response.json()
       })
-      .catch((error) => { alert(`The server is not alive. I received this error: ${error.toString()}`); });
+      .then((body) => {
+        setDisplayedMeme(body);
+      })
+      .catch((error) => {
+        if (typeof error.json === "function") {
+          error.json()
+            .then((jsonError) => {
+              alert(`The server couldn't retrieve the meme due to this error: ${jsonError}`);
+            })
+            .catch((nonsonError) => {
+              alert(`The server is not alive. I received this error: ${error.statusText}`);
+            });
+        } else {
+          alert(`The server is not alive. I received this error: ${error.statusText}`)
+        }
+      });
   };
 
   const putLike = (memeId) => {
@@ -194,21 +254,34 @@ const App = () => {
         },
         body: JSON.stringify({ userName: userName })
       })
-      .then((response) => { return response.json(); })
-      .then((data) => {
-        if (data.statusCode === 200) {
-          alert("Thanks for liking this meme!");
+        .then((response) => {
+          if (!response.ok) {
+            return Promise.reject(response);
+          }
+
+          alert("Thanks for liking this meme!")
           refreshThumbnails();
-        } else {
-          alert(`The server reports the following error: ${data.error}`);
-        }
-      })
-      .catch((error) => { alert(`The server is not alive. I received this error: ${error.toString()}`); })
-      .then(() => { setDisplayedMeme(null); });
-;  }
+        })
+        .catch((error) => {
+          if (typeof error.json === "function") {
+            error.json()
+              .then((jsonError) => {
+                alert(`The server couldn't retrieve the meme due to this error: ${jsonError}`);
+              })
+              .catch(() => {
+                alert(`The server is not alive. I received this error: ${error.statusText}`);
+              });
+          } else {
+            alert(`The server is not alive. I received this error: ${error.statusText}`)
+          }
+        })
+        .then(() => {
+          setDisplayedMeme(null);
+        });
+  }
 
   const dateString = (epoch) => {
-    const date = new Date(epoch);
+    const date = new Date(epoch * 1000);
     return `${date.toDateString()} ${date.getHours()}:${date.getMinutes()}`;
   };
 
@@ -247,7 +320,7 @@ const App = () => {
           {memeFile && (
             <div>
               <p>Size: {Math.round(memeFile.size / 1024)} KiB</p>
-              <img src={URL.createObjectURL(memeFile)} className="img-fluid"></img>
+              <img src={URL.createObjectURL(memeFile)} alt="Meme to post" className="img-fluid"></img>
             </div>
           )}
         </div>
@@ -257,14 +330,11 @@ const App = () => {
       </div>
       <hr />
       <div className="row align-items-start">
-        <div className="col-2">
-          <p>Sort by</p>
-        </div>
-        <div className="col-10">
+        <div className="col">
           {
             thumbnails.map((thumbnail) => (
               <div className="d-inline-block border border-primary m-2 p-2 selectCursor" onClick={() => { showMeme(thumbnail.id); }} key={thumbnail.id}>
-                <img className="img-thumbnail" src={thumbnail.imageUrl}></img>
+                <img className="img-thumbnail" src={thumbnail.imageUrl} alt="Meme thumbnail"></img>
                 <p className="mt-4 mb-0">User: {thumbnail.userName}</p>
                 <p className="m-0">Posted: {dateString(thumbnail.timePosted)}</p>
                 <p className="m-0">Time left: {ttlString(thumbnail.timeToLive)}</p>
@@ -300,7 +370,7 @@ const App = () => {
       {displayedMeme && // if displayedMeme is null, use null, otherwise use <Modal...>
         <Modal show={displayedMeme}>
           <p>On {dateString(displayedMeme.timePosted)}, {uncasedEquals(displayedMeme.userName, userName) ? "you" : displayedMeme.userName} posted:</p>
-          <img src={displayedMeme.imageUrl}></img>
+          <img src={displayedMeme.imageUrl} className="w-100" alt="Meme to view"></img>
           <p>Time left: {ttlString(displayedMeme.timeToLive)}</p>
           <p><span>Likes:</span> {displayedMeme.likes.length}</p>
           { // only show the like button if this is another user's meme and this user hasn't already liked it

@@ -105,9 +105,9 @@ class LambdaInvoker():
             Payload=json.dumps(payload)
         )
 
-        # now send the response. note that flask_cors does not include
-        # CORS headers on responses without bodies.
-        return lambda_response["Payload"].read(), lambda_response["StatusCode"]
+        # now send the response. 
+        response_payload = json.loads(lambda_response["Payload"].read())
+        return response_payload["body"], response_payload["statusCode"]
 
         # code to test the gateway and client locally follows
         #if self.function == "im-get-thumbnails":
