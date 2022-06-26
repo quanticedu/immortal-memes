@@ -61,10 +61,10 @@ const App = () => {
               alert(`The server is alive, but reports this error: ${jsonError}`);
             })
             .catch(() => {
-              alert(`The server is not alive. I received this error: ${error.statusText}`);
+              alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
             });
         } else {
-          alert(`The server is not alive. I received this error: ${error.statusText}`)
+          alert(`The server is not alive. I received this error: ${error.statusText ?? error}`)
         }
       });
   };
@@ -111,10 +111,10 @@ const App = () => {
               alert(`The server is alive, but reports this error: ${jsonError}`);
             })
             .catch(() => {
-              alert(`The server is not alive. I received this error: ${error.statusText}`);
+              alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
             });
         } else {
-          alert(`The server is not alive. I received this error: ${error.statusText}`)
+          alert(`The server is not alive. I received this error: ${error.statusText ?? error}`)
         }
 
         setThumbnails([]);
@@ -205,10 +205,10 @@ const App = () => {
               alert(`The server couldn't post the meme due to this error: ${jsonError}`);
             })
             .catch(() => {
-              alert(`The server is not alive. I received this error: ${error.statusText}`);
+              alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
             });
         } else {
-          alert(`The server is not alive. I received this error: ${error.statusText}`)
+          alert(`The server is not alive or the image was corrupt. I received this error: ${error.statusText ?? error}`)
         }
       })
       .then(() => {
@@ -237,10 +237,10 @@ const App = () => {
               alert(`The server couldn't retrieve the meme due to this error: ${jsonError}`);
             })
             .catch((nonsonError) => {
-              alert(`The server is not alive. I received this error: ${error.statusText}`);
+              alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
             });
         } else {
-          alert(`The server is not alive. I received this error: ${error.statusText}`)
+          alert(`The server is not alive. I received this error: ${error.statusText ?? error}`)
         }
       });
   };
@@ -269,10 +269,10 @@ const App = () => {
                 alert(`The server couldn't retrieve the meme due to this error: ${jsonError}`);
               })
               .catch(() => {
-                alert(`The server is not alive. I received this error: ${error.statusText}`);
+                alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
               });
           } else {
-            alert(`The server is not alive. I received this error: ${error.statusText}`)
+            alert(`The server is not alive. I received this error: ${error.statusText ?? error}`)
           }
         })
         .then(() => {
