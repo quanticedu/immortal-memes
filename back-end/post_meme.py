@@ -4,7 +4,7 @@ import time
 import base64, binascii
 import io
 from PIL import Image, UnidentifiedImageError
-### need to import one more library here
+### need to import the AWS SDK for Python here
 
 def lambda_handler(event, context):
     # event is a JSON string as described in https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
@@ -20,10 +20,10 @@ def lambda_handler(event, context):
         header, data = meme_data["image"].split(";base64,")
         extension = header.split("image/")[-1]
     except ValueError:
-        pass ### return a status code 400 error and the string "badly-formed image data"
+        pass ### respond with a status code 400 error and the string "badly-formed image data"
 
     if extension not in ("bmp", "gif", "jpeg", "png", "tiff"):
-        pass ### return a status code 400 error and the string "can't work with {extension} images"
+        pass ### respond with a status code 400 error and the string "badly-formed image data"
 
     # use Pillow (https://pillow.readthedocs.io/en/stable/index.html)
     # to load the image (base 64 conversion code courtesy of
@@ -33,7 +33,7 @@ def lambda_handler(event, context):
     try:
         image = Image.open(io.BytesIO(base64.decodebytes(bytes(data, "utf-8"))))
     except (UnidentifiedImageError, binascii.Error):
-        pass ### return a status code 400 and the string "badly-formed image data"
+        pass ### respond with a status code 400 and the string "badly-formed image data"
 
     # use a random UUID as the id for the meme (both the full image
     # and thumbnail)
@@ -47,9 +47,7 @@ def lambda_handler(event, context):
     with io.BytesIO() as in_mem_file:
         image.save(in_mem_file, format=image.format)
         in_mem_file.seek(0)
-    
-        # upload from the in-memory object to S3
-        bucket. ### apply the method to upload a file object to the /memes folder
+        bucket. ### apply an action to upload the in-memory file to the /memes folder
     
     # make a thumbnail and repeat the process above
     image.thumbnail((200, 200))
@@ -63,7 +61,7 @@ def lambda_handler(event, context):
     with io.BytesIO() as in_mem_file:
         image.save(in_mem_file, format="jpeg")
         in_mem_file.seek(0)
-        bucket. ### upload to the /thumbnails folder using the same id as the meme
+        bucket. ### upload the in-memory file to the /thumbnails folder using the same id as the meme
 
     # write the entry to the database
     posted = int(time.time()) # current epoch time in seconds
@@ -79,5 +77,5 @@ def lambda_handler(event, context):
     table = ### get the sub-resource
     table. ### apply the method to add an item to the table
 
-    ### return success code and id of the meme
+    ### respond with success code 200 and id of the meme
 
