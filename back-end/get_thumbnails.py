@@ -5,13 +5,11 @@ import io
 import time
 
 def lambda_handler(event, context):
-    # get a Lambda client for the im-delete-meme function
-
-    # get the S3 bucket
+    ### get the S3 service resource
     s3 = 
     bucket = 
     
-    # get entries from the database
+    ### get all meme entries from the database
     dynamodb = 
     table = 
     db_memes = 
@@ -24,30 +22,29 @@ def lambda_handler(event, context):
     thumbnails = []
     
     for meme in memes:
-        thumbnail = dict()
-        
-        # get the thumbnail image from S3
-        thumbnail_image = bucket.Object(f"thumbnails/{meme['id']}")
-        
-        # skip this thumbnail if the image isn't present or it's past its 
-        # time to die
-        
-        # load the image into an in-memory file object
-        in_mem_file = io.BytesIO()
-        thumbnail_image.
-        
-        # now write the image into the thumbnail as a base64 data URL
-        # base 64 conversion code courtesy of https://stackoverflow.com/a/68989496/4062628
-        thumbnail["imageUrl"] = (
-            "data:image/jpeg;base64," 
-            + base64.b64encode(in_mem_file.getvalue()).decode("utf-8"))
-        in_mem_file.close()
+        # skip this thumbnail if the it's past its time to die
+        if time_now > : ### time to die value from database
+            continue
 
-        # build the thumnail's metadata
-        thumbnail["timeToLive"] = 
-        thumbnail["timePosted"] = 
-        thumbnail["userName"] = 
-        thumbnail["id"] = 
+        # create a thumbnail item with metadata and image data
+        thumbnail = {
+            "timeToLive": , ### timeToLive (in seconds remaining) computed as time_now - timeToDie
+            "timePosted": , ### directly from database
+            "userName": , ### directly from database
+            "id": ### directly from database
+        }
+
+        # load the image into an in-memory file object
+        with io.BytesIO() as in_mem_file:
+            ### download the thumbnail image from S3. skip the meme if the thumbnail doesn't exist
+        
+            # now write the image into the thumbnail as a base64 data URL
+            # base 64 conversion code courtesy of https://stackoverflow.com/a/68989496/4062628
+            thumbnail["imageUrl"] = (
+                "data:image/jpeg;base64," 
+                + base64.b64encode(in_mem_file.getvalue()).decode("utf-8"))
+
+        # add the thumbnail to the response
         thumbnails.append(thumbnail)
         
-    # return the thumbnails
+    ### return thumbnails as the body
