@@ -28,7 +28,7 @@ def lambda_handler(event, context):
 
         # create a thumbnail item with metadata and image data
         thumbnail = {
-            "timeToLive": , ### timeToLive (in seconds remaining) computed as time_now - timeToDie
+            "timeToLive": , ### timeToLive (in seconds remaining) computed as timeToDie - time_now
             "timePosted": , ### directly from database
             "userName": , ### directly from database
             "id": ### directly from database
