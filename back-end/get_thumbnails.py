@@ -22,7 +22,7 @@ def lambda_handler(event, context):
     thumbnails = []
     
     for meme in memes:
-        # skip this thumbnail if the it's past its time to die
+        # skip this thumbnail if it's past its time to die
         if time_now > : ### time to die value from database
             continue
 
@@ -36,7 +36,7 @@ def lambda_handler(event, context):
 
         # load the image into an in-memory file object
         with io.BytesIO() as in_mem_file:
-            ### download the thumbnail image from S3. skip the meme if the thumbnail doesn't exist
+            ### download a thumbnail image from S3. skip the meme if the thumbnail doesn't exist
         
             # now write the image into the thumbnail as a base64 data URL
             # base 64 conversion code courtesy of https://stackoverflow.com/a/68989496/4062628
