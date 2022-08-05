@@ -282,7 +282,7 @@ const App = () => {
 
   const dateString = (epoch) => {
     const date = new Date(epoch * 1000);
-    return `${date.toDateString()} ${date.getHours()}:${date.getMinutes()}`;
+    return `${date.toDateString()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
   };
 
   const ttlString = (timeSeconds) => {
