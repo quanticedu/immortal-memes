@@ -15,8 +15,8 @@ def lambda_handler(event, context):
 
     # create an in-memory file
     with io.BytesIO() as in_mem_file:
-        ### download the image data into the in-memory file. return 
-        ### an error code if the object doesn't exist
+        ### download the image data into the in-memory 
+        ### file. return error code if it doesn't exist
 
         # load the meme as an image to get its type
         image = Image.open(in_mem_file)
@@ -24,9 +24,9 @@ def lambda_handler(event, context):
         time_now = int(time.time())
 
         ### build the object to return
-        meme_data = {
+        return_data = {
             "imageUrl": (f"data:image/{image.format};base64,"
                          + base64.b64encode(in_mem_file.getvalue()).decode("utf-8")),
         }
 
-    ### return success code and meme_data
+    ### return success code and return_data

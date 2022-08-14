@@ -3,14 +3,14 @@ import boto3
 import time
 
 def lambda_handler(event, context):
-    # get the meme_id, event_body, and user_name
+    ### get the meme_id and user_name
     
-    # verify the meme is in the database
+    ### query the database for the meme's info. return 404 error if it's not in the database.
 
-    # find out whether this user has liked this meme already
+    ### return 400 error if the meme was already liked by this user or if this user posted the meme
         
-    # add the like to im-likes
-    
-    # add to the item's timeToDie
+    ### build an update expression to add the like and increment timeToDie by one hour
 
-    # return success    
+    ### update the item
+
+    ### return 201 success
