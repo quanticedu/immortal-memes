@@ -44,6 +44,7 @@ def lambda_handler(event, context):
     bucket = ### get the sub-resource
 
     # save it in an in-memory file-like object
+    # if you're unfamiliar with the "with" statement, read this: https://www.geeksforgeeks.org/with-statement-in-python/
     with io.BytesIO() as in_mem_file:
         image.save(in_mem_file, format=image.format)
         in_mem_file.seek(0)

@@ -58,7 +58,13 @@ const App = () => {
         if (typeof error.json === "function") {
           error.json()
             .then((jsonError) => {
-              alert(`The server is alive, but reports this error: ${jsonError}`);
+              if (typeof jsonError === "string") {
+                alert(`The server is alive, but reports this error: ${jsonError}`);
+              } else if (jsonError.hasOwnProperty("message")) {
+                alert(`The server is alive, but reports this error: ${jsonError.message}`);
+              } else {
+                alert("The server is alive but reports an error.")
+              }
             })
             .catch(() => {
               alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
@@ -108,7 +114,13 @@ const App = () => {
         if (typeof error.json === "function") {
           error.json()
             .then((jsonError) => {
-              alert(`The server is alive, but reports this error: ${jsonError}`);
+              if (typeof jsonError === "string") {
+                alert(`The server is alive, but reports this error: ${jsonError}`);
+              } else if (jsonError.hasOwnProperty("message")) {
+                alert(`The server is alive, but reports this error: ${jsonError.message}`);
+              } else {
+                alert("The server is alive but reports an error.")
+              }
             })
             .catch(() => {
               alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
@@ -202,7 +214,13 @@ const App = () => {
         if (typeof error.json === "function") {
           error.json()
             .then((jsonError) => {
-              alert(`The server couldn't post the meme due to this error: ${jsonError}`);
+              if (typeof jsonError === "string") {
+                alert(`The server is alive, but reports this error: ${jsonError}`);
+              } else if (jsonError.hasOwnProperty("message")) {
+                alert(`The server is alive, but reports this error: ${jsonError.message}`);
+              } else {
+                alert("The server is alive but reports an error.")
+              }
             })
             .catch(() => {
               alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
@@ -234,7 +252,13 @@ const App = () => {
         if (typeof error.json === "function") {
           error.json()
             .then((jsonError) => {
-              alert(`The server couldn't retrieve the meme due to this error: ${jsonError}`);
+              if (typeof jsonError === "string") {
+                alert(`The server is alive, but reports this error: ${jsonError}`);
+              } else if (jsonError.hasOwnProperty("message")) {
+                alert(`The server is alive, but reports this error: ${jsonError.message}`);
+              } else {
+                alert("The server is alive but reports an error.")
+              }
             })
             .catch((nonsonError) => {
               alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
@@ -266,8 +290,14 @@ const App = () => {
           if (typeof error.json === "function") {
             error.json()
               .then((jsonError) => {
-                alert(`The server couldn't retrieve the meme due to this error: ${jsonError}`);
-              })
+                if (typeof jsonError === "string") {
+                  alert(`The server is alive, but reports this error: ${jsonError}`);
+                } else if (jsonError.hasOwnProperty("message")) {
+                  alert(`The server is alive, but reports this error: ${jsonError.message}`);
+                } else {
+                  alert("The server is alive but reports an error.")
+                }
+                })
               .catch(() => {
                 alert(`The server is not alive. I received this error: ${error.statusText ?? error}`);
               });
